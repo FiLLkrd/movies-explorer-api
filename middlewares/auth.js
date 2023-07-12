@@ -6,7 +6,7 @@ const ErrNotAuth = require('../utils/ErrNotAuth');
 module.exports.auth = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('bearer ')) {
-    next(new ErrNotAuth(''));
+    next(new ErrNotAuth('Необходима авторизация'));
     return;
   }
 
@@ -16,7 +16,7 @@ module.exports.auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    next(new ErrNotAuth(''));
+    next(new ErrNotAuth('Необходима авторизация'));
     return;
   }
 

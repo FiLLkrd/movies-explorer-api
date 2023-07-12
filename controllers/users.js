@@ -27,15 +27,15 @@ const updateUserInfo = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new ErrNotFound('');
+        throw new ErrNotFound('Данный пользователь не найден');
       }
       res.send(user);
     })
     .catch((error) => {
       if (error.code === 11000) {
-        next(new ErrConflictUser(''));
+        next(new ErrConflictUser('Аккаунт с данным email уже зарегистрирован'));
       } else if (error.name === 'ValidationError') {
-        next(new ErrBadRequest(''));
+        next(new ErrBadRequest('Переданы некорректные данные'));
       } else {
         next(error);
       }
@@ -51,9 +51,9 @@ const createUser = (req, res, next) => {
     .then(() => res.status(OK).send({ message: 'Пользователь создан' }))
     .catch((error) => {
       if (error.code === 11000) {
-        next(new ErrConflictUser(''));
+        next(new ErrConflictUser('Аккаунт с данным email уже зарегистрирован'));
       } else if (error.name === 'ValidationError') {
-        next(new ErrBadRequest(''));
+        next(new ErrBadRequest('Переданы некорректные данные'));
       } else {
         next(error);
       }
@@ -63,11 +63,11 @@ const createUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
-    .orFail(() => { throw new ErrNotAuth(''); })
+    .orFail(() => { throw new ErrNotAuth('Неверные почта или пароль'); })
     .then((user) => bcrypt.compare(password, user.password)
       .then((matched) => {
         if (!matched) {
-          throw ErrNotAuth('');
+          throw ErrNotAuth('Неверные почта или пароль');
         }
         return user;
       }))

@@ -43,7 +43,7 @@ const createMovies = (req, res, next) => {
     .then((movie) => res.status(CREATED).send(movie))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        next(new ErrBadRequest(''));
+        next(new ErrBadRequest('Переданы некорректные данные'));
       } else {
         next(error);
       }
@@ -54,7 +54,7 @@ const deleteMovies = (req, res, next) => {
   const { movieId } = req.params;
   Movie.findById(movieId)
     .orFail(() => {
-      throw new ErrNotFound('');
+      throw new ErrNotFound('Данный фильм не найден');
     })
     .then((movie) => {
       const owner = movie.owner.toString();
@@ -65,12 +65,12 @@ const deleteMovies = (req, res, next) => {
           })
           .catch(next);
       } else {
-        throw new ErrForBidden('');
+        throw new ErrForBidden('Вы не можете удалить данный фильм');
       }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        next(new ErrBadRequest(''));
+        next(new ErrBadRequest('Переданы некорректные данные'));
       } else {
         next(error);
       }
