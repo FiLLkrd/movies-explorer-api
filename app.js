@@ -18,13 +18,7 @@ app.use(errorLogger);
 app.use((req, res, next) => {
   next(new ErrNotFound('Страница по данному адресу не найдена'));
 });
-mongoose.connect(DB_URL)
-  .then(() => {
-    console.log('Connected');
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+mongoose.connect(DB_URL);
 app.use(errors());
 app.use(errorHandler);
 
