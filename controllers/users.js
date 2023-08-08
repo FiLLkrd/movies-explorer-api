@@ -6,7 +6,7 @@ const ErrConflictUser = require('../utils/ErrConflictUser');
 const ErrBadRequest = require('../utils/ErrBadRequest');
 const ErrNotAuth = require('../utils/ErrNotAuth');
 const { JWT_SECRET } = require('../utils/configuration');
-const OK = require('../utils/errors');
+const CREATED = require('../utils/errors');
 
 const getUserInfo = (req, res, next) => {
   const userId = req.user._id;
@@ -48,7 +48,7 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       email, password: hash, name,
     }))
-    .then(() => res.status(OK).send({ message: 'Пользователь создан' }))
+    .then(() => res.status(CREATED).send({ message: 'Пользователь создан' }))
     .catch((error) => {
       if (error.code === 11000) {
         next(new ErrConflictUser('Аккаунт с данным email уже зарегистрирован'));
