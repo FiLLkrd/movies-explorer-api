@@ -1,5 +1,5 @@
-const { PORT = 3004 } = process.env;
-const { DB_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
+const { PORT = 3003 } = process.env;
+const { DB_URL = 'mongodb://127.0.0.1/bitfilmsdb' } = process.env;
 const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
 module.exports = {
