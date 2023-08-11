@@ -11,7 +11,6 @@ const ErrNotFound = require('./utils/ErrNotFound');
 
 mongoose.connect(DB_URL);
 const app = express();
-app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
