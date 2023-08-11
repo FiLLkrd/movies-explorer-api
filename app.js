@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { PORT, DB_URL } = require('./utils/configuration');
@@ -11,6 +12,7 @@ const ErrNotFound = require('./utils/ErrNotFound');
 
 mongoose.connect(DB_URL);
 const app = express();
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
