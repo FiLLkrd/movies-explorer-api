@@ -4,9 +4,9 @@ const ErrBadRequest = require('../utils/ErrBadRequest');
 const ErrConflictUser = require('../utils/ErrConflictUser');
 const ErrNotFound = require('../utils/ErrNotFound');
 
-const { CREATED } = require('../utils/errors');
+const { CREATED, OK } = require('../utils/errors');
 
-function createUser(req, res, next) {
+const createUser = (req, res, next) => {
   const {
     email, password, name,
   } = req.body;
@@ -24,9 +24,23 @@ function createUser(req, res, next) {
         next(error);
       }
     });
-}
+};
 
-function getUserInfo(req, res, next) {
+const getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      throw new ErrNotFound('Данный пользователь не найден');
+    })
+    .then((user) => {
+      res.status(OK).send({
+        email: user.email,
+        name: user.name,
+      });
+    })
+    .catch((err) => next(err));
+};
+
+const updateUserInfo = (req, res, next) => {
   const { email, name } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -35,7 +49,7 @@ function getUserInfo(req, res, next) {
   )
     .then((user) => {
       if (!user) {
-        throw new ErrNotFound('Страница не найдена');
+        throw new ErrNotFound('Данный пользователь не найден');
       }
       res.send(user);
     })
@@ -48,22 +62,6 @@ function getUserInfo(req, res, next) {
         next(error);
       }
     });
-}
-
-const updateUserInfo = (req, res, next) => {
-  const { name, email } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, email },
-    { new: true, runValidators: true },
-  )
-    .orFail(() => {
-      throw new ErrNotFound('Пользователь не найден');
-    })
-    .then((user) => {
-      res.status(CREATED).send({ email: user.email, name: user.name });
-    })
-    .catch((err) => next(err));
 };
 
 module.exports = {
