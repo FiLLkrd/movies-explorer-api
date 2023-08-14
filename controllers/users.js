@@ -1,38 +1,54 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/users');
+const ErrBadRequest = require('../utils/ErrBadRequest');
+const ErrConflictUser = require('../utils/ErrConflictUser');
 const ErrNotFound = require('../utils/ErrNotFound');
 
-const { CREATED, OK } = require('../utils/errors');
+const { CREATED } = require('../utils/errors');
 
-const createUser = (req, res, next) => {
-  const { email, password, name } = req.body;
-  bcrypt.hash(password, 10).then((hash) => {
-    User.create({
-      name,
-      email,
-      password: hash,
-    })
-      .then((user) => res.status(CREATED).send({
-        name: user.name,
-        email: user.email,
-      }))
-      .catch((err) => next(err));
-  });
-};
+function createUser(req, res, next) {
+  const {
+    email, password, name,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email, password: hash, name,
+    }))
+    .then(() => res.status(CREATED).send({ message: 'Пользователь создан' }))
+    .catch((error) => {
+      if (error.code === 11000) {
+        next(new ErrConflictUser('Пользователь с данным e-mail уже существует'));
+      } else if (error.name === 'ValidationError') {
+        next(new ErrBadRequest('Данные не корректны'));
+      } else {
+        next(error);
+      }
+    });
+}
 
-const getUserInfo = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(() => {
-      throw new ErrNotFound('Данный пользователь не найден');
-    })
+function getUserInfo(req, res, next) {
+  const { email, name } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { email, name },
+    { new: true, runValidators: true, upsert: false },
+  )
     .then((user) => {
-      res.status(OK).send({
-        email: user.email,
-        name: user.name,
-      });
+      if (!user) {
+        throw new ErrNotFound('Страница не найдена');
+      }
+      res.send(user);
     })
-    .catch((err) => next(err));
-};
+    .catch((error) => {
+      if (error.code === 11000) {
+        next(new ErrConflictUser('Пользователь с данным e-mail уже существует'));
+      } else if (error.name === 'ValidationError') {
+        next(new ErrBadRequest('Данные не корректны'));
+      } else {
+        next(error);
+      }
+    });
+}
 
 const updateUserInfo = (req, res, next) => {
   const { name, email } = req.body;
