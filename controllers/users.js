@@ -15,13 +15,13 @@ const createUser = (req, res, next) => {
       email, password: hash, name,
     }))
     .then(() => res.status(CREATED).send({ message: 'Пользователь создан' }))
-    .catch((error) => {
-      if (error.code === 11000) {
+    .catch((err) => {
+      if (err.code === 11000) {
         next(new ErrConflictUser('Пользователь с данным e-mail уже существует'));
-      } else if (error.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         next(new ErrBadRequest('Данные не корректны'));
       } else {
-        next(error);
+        next(err);
       }
     });
 };
@@ -53,13 +53,13 @@ const updateUserInfo = (req, res, next) => {
       }
       res.send(user);
     })
-    .catch((error) => {
-      if (error.code === 11000) {
+    .catch((err) => {
+      if (err.code === 11000) {
         next(new ErrConflictUser('Пользователь с данным e-mail уже существует'));
-      } else if (error.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         next(new ErrBadRequest('Данные не корректны'));
       } else {
-        next(error);
+        next(err);
       }
     });
 };
